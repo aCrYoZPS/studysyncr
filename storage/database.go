@@ -33,13 +33,43 @@ func (dbc *DBConnected) Init(dbadress string) error {
 	return nil
 }
 
-func (dbc *DBConnected) Add(note notes.Note) error {
-	err := dbc.DB.Create(&note).Error
-	if err != nil {
+func (dbc *DBConnected) Add(note *notes.Note) error {
+	result := dbc.DB.Create(note)
+	if err := result.Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (dbc *DBConnected) Get(ID int, Author string) {
+func (dbc *DBConnected) Get(ID int) (notes.Note, error) {
+	var note notes.Note = notes.Note{}
+	if err := dbc.DB.First(&note, ID).Error; err != nil {
+		return note, err
+	}
+	return note, nil
+}
+
+func (dbc *DBConnected) GetList(Author string) ([]notes.Note, error) {
+	var noteSlice []notes.Note
+	result := dbc.DB.Where("author = ?", Author).Find(&noteSlice)
+	if err := result.Error; err != nil {
+		return noteSlice, err
+	}
+	return noteSlice, nil
+}
+
+func (dbc *DBConnected) Update(ID int, note *notes.Note) error {
+	result := dbc.DB.Save(note)
+	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (dbc *DBConnected) Delete(ID int) error {
+	result := dbc.DB.Delete(&notes.Note{}, ID)
+	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
 }
