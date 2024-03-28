@@ -1,7 +1,12 @@
-package entities
+package notes
+
+import (
+	"gorm.io/gorm"
+)
 
 type Note struct {
-	Id      int    `json:"id"`
+	gorm.Model
+	ID      int    `json:"id"`
 	Author  string `json:"author"`
 	Content string `json:"content"`
 }
