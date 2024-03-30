@@ -7,3 +7,5 @@ use ./notes
 use ./handlers
 
 use ./storage
+
+use ./docs

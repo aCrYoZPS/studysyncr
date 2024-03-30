@@ -34,40 +34,43 @@ func (dbc *DBConnected) Init(dbadress string) error {
 }
 
 func (dbc *DBConnected) Add(note *notes.Note) error {
-	result := dbc.DB.Create(note)
+	result := dbc.DB.Select("author", "content").Create(note)
 	if err := result.Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (dbc *DBConnected) Get(ID int) (notes.Note, error) {
-	var note notes.Note = notes.Note{}
-	if err := dbc.DB.First(&note, ID).Error; err != nil {
+func (dbc *DBConnected) Get(ID int, author string) (notes.Note, error) {
+	var note notes.Note = notes.Note{Author: nil}
+	if err := dbc.DB.Where("author = ? AND id = ?", author, ID).First(&note).Error; err != nil {
 		return note, err
 	}
 	return note, nil
 }
 
-func (dbc *DBConnected) GetList(Author string) ([]notes.Note, error) {
+func (dbc *DBConnected) GetList(author string) ([]notes.Note, error) {
 	var noteSlice []notes.Note
-	result := dbc.DB.Where("author = ?", Author).Find(&noteSlice)
+	result := dbc.DB.Where("author = ?", author).Find(&noteSlice)
 	if err := result.Error; err != nil {
 		return noteSlice, err
 	}
 	return noteSlice, nil
 }
 
-func (dbc *DBConnected) Update(ID int, note *notes.Note) error {
-	result := dbc.DB.Save(note)
+func (dbc *DBConnected) Update(ID int, author string, note *notes.Note) error {
+	result := dbc.DB.Model(notes.Note{}).
+		Where("author = ? AND id = ?", author, ID).
+		Updates(notes.Note{Content: note.Content})
 	if err := result.Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (dbc *DBConnected) Delete(ID int) error {
-	result := dbc.DB.Delete(&notes.Note{}, ID)
+func (dbc *DBConnected) Delete(ID int, author string) error {
+	var note notes.Note = notes.Note{Author: nil}
+	result := dbc.DB.Where("author = ? AND id = ?", author, ID).Delete(&note)
 	if err := result.Error; err != nil {
 		return err
 	}
