@@ -1,5 +1,142 @@
-basePath: ./
+definitions:
+  notes.Note:
+    properties:
+      author:
+        type: string
+      content:
+        type: string
+      id:
+        type: integer
+    type: object
 info:
   contact: {}
-paths: {}
+  description: A book management service API in Go using Gin framework.
+  title: Studysyncr API
+  version: "1.0"
+paths:
+  /notes/{user}:
+    get:
+      description: Returns JSON array of notes
+      parameters:
+      - description: current user
+        in: path
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/notes.Note'
+            type: array
+      summary: Get all notes of user
+      tags:
+      - notes
+    post:
+      consumes:
+      - application/json
+      description: Upload a new note
+      parameters:
+      - description: current user
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: Note JSON
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/notes.Note'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/notes.Note'
+      summary: Post a note
+      tags:
+      - notes
+  /notes/{user}/{id}:
+    delete:
+      description: Deletes a note from db
+      parameters:
+      - description: current user
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: note id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/notes.Note'
+      summary: Delete a note
+      tags:
+      - notes
+    get:
+      description: Returns JSON of note
+      parameters:
+      - description: current user
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: note id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/notes.Note'
+      summary: Get a note
+      tags:
+      - notes
+    patch:
+      consumes:
+      - application/json
+      description: Updates a note in the db
+      parameters:
+      - description: current user
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: note id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Note JSON
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/notes.Note'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/notes.Note'
+      summary: Patch a note
+      tags:
+      - notes
 swagger: "2.0"

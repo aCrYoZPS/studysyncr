@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq" // swagger embed files
-	_ "github.com/swaggo/files"
-	_ "github.com/swaggo/gin-swagger" // gin-swagger middleware
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 	"gorm.io/gorm"
 )
 
@@ -20,15 +20,18 @@ var (
 	router *gin.Engine          = gin.Default()
 )
 
+// @title           Studysyncr API
+// @version         1.0
+// @description     API for Studysyncr practice project
 func main() {
 	db.Init(conStr)
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "")
 	})
-	// router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("notes/:user/:id", handlers.GetNote(db))
 	router.GET("notes/:user", handlers.GetAllNotes(db))
-	router.POST("notes/", handlers.PostNote(db))
+	router.POST("notes/:user", handlers.PostNote(db))
 	router.DELETE("notes/:user/:id", handlers.DeleteNote(db))
 	router.PATCH("notes/:user/:id", handlers.PatchNote(db))
 	router.Run("localhost:8080")

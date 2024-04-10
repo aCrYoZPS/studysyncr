@@ -5,17 +5,27 @@ import (
 	"net/http"
 	"strconv"
 
+	_ "docs"
 	"notes"
 	"storage"
 
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary      Get a note
+// @Description  Returns JSON of note
+// @Tags         notes
+// @Param        user path string true "current user"
+// @Param        id path int true "note id"
+// @Produce      json
+// @Success      200   {object}  notes.Note
+// @Router       /notes/{user}/{id} [get]
 func GetNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.String(http.StatusBadRequest, "Invalid ID")
+			return
 		}
 		author := c.Param("user")
 		fmt.Println(author)
@@ -30,6 +40,13 @@ func GetNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	return gin.HandlerFunc(fn)
 }
 
+// @Summary      Get all notes of user
+// @Description  Returns JSON array of notes
+// @Tags         notes
+// @Param        user path string true "current user"
+// @Produce      json
+// @Success      200   {object}  []notes.Note
+// @Router       /notes/{user} [get]
 func GetAllNotes(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		author := c.Param("user")
@@ -47,6 +64,14 @@ func GetAllNotes(dbc *storage.DBConnected) gin.HandlerFunc {
 	return gin.HandlerFunc(fn)
 }
 
+// @Summary      Delete a note
+// @Description  Deletes a note from db
+// @Tags         notes
+// @Param        user path string true "current user"
+// @Param        id path int true "note id"
+// @Produce      json
+// @Success      200   {object}  notes.Note
+// @Router       /notes/{user}/{id} [delete]
 func DeleteNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		author := c.Param("user")
@@ -64,10 +89,24 @@ func DeleteNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	return gin.HandlerFunc(fn)
 }
 
+// @Summary      Post a note
+// @Description  Upload a new note
+// @Tags         notes
+// @Param        user path string true "current user"
+// @Param        note body notes.Note true "Note JSON"
+// @Accept       json
+// @Produce      json
+// @Success      200   {object}  notes.Note
+// @Router       /notes/{user} [post]
 func PostNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var note notes.Note
 		err := c.ShouldBindJSON(&note)
+		author := c.Param("user")
+		if *note.Author != author {
+			c.String(http.StatusForbidden, "You can't upload notes that are not yours")
+			return
+		}
 		if err != nil {
 			c.String(http.StatusBadRequest, "Invalid payload")
 			return
@@ -83,6 +122,16 @@ func PostNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	return gin.HandlerFunc(fn)
 }
 
+// @Summary      Patch a note
+// @Description  Updates a note in the db
+// @Tags         notes
+// @Param        user path string true "current user"
+// @Param        id path int true "note id"
+// @Param        note body notes.Note true "Note JSON"
+// @Accept       json
+// @Produce      json
+// @Success      200   {object}  notes.Note
+// @Router       /notes/{user}/{id} [patch]
 func PatchNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		author := c.Param("user")
@@ -95,6 +144,10 @@ func PatchNote(dbc *storage.DBConnected) gin.HandlerFunc {
 		err = c.ShouldBindJSON(&note)
 		if err != nil {
 			c.String(http.StatusBadRequest, "Invalid payload")
+			return
+		}
+		if *note.Author != author {
+			c.String(http.StatusForbidden, "Cannot access note that is not yours")
 			return
 		}
 		err = dbc.Update(id, author, &note)
