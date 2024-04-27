@@ -8,19 +8,80 @@ definitions:
       id:
         type: integer
     type: object
+  users.User:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
 info:
   contact: {}
-  description: A book management service API in Go using Gin framework.
+  description: API for Studysyncr practice project
   title: Studysyncr API
   version: "1.0"
 paths:
-  /notes/{user}:
+  /authorise:
+    post:
+      consumes:
+      - application/json
+      description: Authorise a user
+      parameters:
+      - description: user JSON
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+      - description: Bearer
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Authorisation
+      tags:
+      - authorisation
+  /notes:
+    post:
+      consumes:
+      - application/json
+      description: Upload a new note
+      parameters:
+      - description: Note JSON
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/notes.Note'
+      - description: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyMSJ9.f3FtHCssZ2xJN74rmYeautqiMDrejzBbnspf222cfbo
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/notes.Note'
+      summary: Post a note
+      tags:
+      - notes
+  /notes/:
     get:
       description: Returns JSON array of notes
       parameters:
-      - description: current user
-        in: path
-        name: user
+      - description: Bearer
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
@@ -35,39 +96,13 @@ paths:
       summary: Get all notes of user
       tags:
       - notes
-    post:
-      consumes:
-      - application/json
-      description: Upload a new note
-      parameters:
-      - description: current user
-        in: path
-        name: user
-        required: true
-        type: string
-      - description: Note JSON
-        in: body
-        name: note
-        required: true
-        schema:
-          $ref: '#/definitions/notes.Note'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/notes.Note'
-      summary: Post a note
-      tags:
-      - notes
-  /notes/{user}/{id}:
+  /notes/{id}:
     delete:
       description: Deletes a note from db
       parameters:
-      - description: current user
-        in: path
-        name: user
+      - description: Bearer
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: note id
@@ -88,16 +123,16 @@ paths:
     get:
       description: Returns JSON of note
       parameters:
-      - description: current user
-        in: path
-        name: user
-        required: true
-        type: string
       - description: note id
         in: path
         name: id
         required: true
         type: integer
+      - description: Bearer
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -113,16 +148,16 @@ paths:
       - application/json
       description: Updates a note in the db
       parameters:
-      - description: current user
-        in: path
-        name: user
-        required: true
-        type: string
       - description: note id
         in: path
         name: id
         required: true
         type: integer
+      - description: Bearer
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Note JSON
         in: body
         name: note
@@ -139,4 +174,24 @@ paths:
       summary: Patch a note
       tags:
       - notes
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a user
+      parameters:
+      - description: user JSON
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Register user
+      tags:
+      - registration
 swagger: "2.0"

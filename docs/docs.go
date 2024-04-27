@@ -15,37 +15,45 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/notes/{user}": {
-            "get": {
-                "description": "Returns JSON array of notes",
+        "/authorise": {
+            "post": {
+                "description": "Authorise a user",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "notes"
+                    "authorisation"
                 ],
-                "summary": "Get all notes of user",
+                "summary": "Authorisation",
                 "parameters": [
                     {
+                        "description": "user JSON",
+                        "name": "note",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.User"
+                        }
+                    },
+                    {
                         "type": "string",
-                        "description": "current user",
-                        "name": "user",
-                        "in": "path",
+                        "description": "Bearer",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/notes.Note"
-                            }
-                        }
+                        "description": "OK"
                     }
                 }
-            },
+            }
+        },
+        "/notes": {
             "post": {
                 "description": "Upload a new note",
                 "consumes": [
@@ -60,13 +68,6 @@ const docTemplate = `{
                 "summary": "Post a note",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "current user",
-                        "name": "user",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "description": "Note JSON",
                         "name": "note",
                         "in": "body",
@@ -74,6 +75,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/notes.Note"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyMSJ9.f3FtHCssZ2xJN74rmYeautqiMDrejzBbnspf222cfbo",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -86,7 +94,39 @@ const docTemplate = `{
                 }
             }
         },
-        "/notes/{user}/{id}": {
+        "/notes/": {
+            "get": {
+                "description": "Returns JSON array of notes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "Get all notes of user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/notes.Note"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/notes/{id}": {
             "get": {
                 "description": "Returns JSON of note",
                 "produces": [
@@ -98,17 +138,17 @@ const docTemplate = `{
                 "summary": "Get a note",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "current user",
-                        "name": "user",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "note id",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -133,9 +173,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "current user",
-                        "name": "user",
-                        "in": "path",
+                        "description": "Bearer",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -169,17 +209,17 @@ const docTemplate = `{
                 "summary": "Patch a note",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "current user",
-                        "name": "user",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "note id",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -201,6 +241,37 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/register": {
+            "post": {
+                "description": "Register a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registration"
+                ],
+                "summary": "Register user",
+                "parameters": [
+                    {
+                        "description": "user JSON",
+                        "name": "note",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -217,6 +288,20 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "users.User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
@@ -228,7 +313,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Studysyncr API",
-	Description:      "A book management service API in Go using Gin framework.",
+	Description:      "API for Studysyncr practice project",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

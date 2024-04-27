@@ -9,3 +9,7 @@ use ./handlers
 use ./storage
 
 use ./docs
+
+use ./users
+
+use ./auth

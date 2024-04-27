@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
+	"auth"
 	_ "docs"
 	"notes"
 	"storage"
@@ -15,23 +15,27 @@ import (
 // @Summary      Get a note
 // @Description  Returns JSON of note
 // @Tags         notes
-// @Param        user path string true "current user"
 // @Param        id path int true "note id"
+// @Param        Authorization header string true "Bearer"
 // @Produce      json
 // @Success      200   {object}  notes.Note
-// @Router       /notes/{user}/{id} [get]
+// @Router       /notes/{id} [get]
 func GetNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			c.String(http.StatusBadRequest, "Invalid ID")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 			return
 		}
-		author := c.Param("user")
-		fmt.Println(author)
+		author, err := auth.ExtractTokenUsername(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"errror": "Token shenanigans"})
+			return
+		}
+		//	author := c.Param("user")
 		note, err := dbc.Get(id, author)
 		if err != nil {
-			c.String(http.StatusNotFound, "ID not found")
+			c.JSON(http.StatusNotFound, gin.H{"error": "ID not found"})
 			return
 		} else {
 			c.JSON(http.StatusOK, note)
@@ -43,20 +47,24 @@ func GetNote(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Summary      Get all notes of user
 // @Description  Returns JSON array of notes
 // @Tags         notes
-// @Param        user path string true "current user"
+// @Param        Authorization header string true "Bearer"
 // @Produce      json
 // @Success      200   {object}  []notes.Note
-// @Router       /notes/{user} [get]
+// @Router       /notes/ [get]
 func GetAllNotes(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		author := c.Param("user")
+		author, err := auth.ExtractTokenUsername(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"errror": "Token shenanigans"})
+			return
+		}
 		notes, err := dbc.GetList(author)
 		if err != nil {
-			c.String(http.StatusBadRequest, "Invalid author")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author"})
 			return
 		}
 		if len(notes) == 0 {
-			c.String(http.StatusBadRequest, "Author not found")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Author not found"})
 			return
 		}
 		c.JSON(http.StatusOK, notes)
@@ -67,22 +75,26 @@ func GetAllNotes(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Summary      Delete a note
 // @Description  Deletes a note from db
 // @Tags         notes
-// @Param        user path string true "current user"
+// @Param        Authorization header string true "Bearer"
 // @Param        id path int true "note id"
 // @Produce      json
 // @Success      200   {object}  notes.Note
-// @Router       /notes/{user}/{id} [delete]
+// @Router       /notes/{id} [delete]
 func DeleteNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		author := c.Param("user")
+		author, err := auth.ExtractTokenUsername(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"errror": "Token shenanigans"})
+			return
+		}
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			c.String(http.StatusBadRequest, "Invalid ID")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 			return
 		}
 		err = dbc.Delete(id, author)
 		if err != nil {
-			c.String(http.StatusNotFound, "ID not found")
+			c.JSON(http.StatusNotFound, gin.H{"error": "ID not found"})
 			return
 		}
 	}
@@ -92,28 +104,36 @@ func DeleteNote(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Summary      Post a note
 // @Description  Upload a new note
 // @Tags         notes
-// @Param        user path string true "current user"
 // @Param        note body notes.Note true "Note JSON"
+// @Param        Authorization header string true "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyMSJ9.f3FtHCssZ2xJN74rmYeautqiMDrejzBbnspf222cfbo"
 // @Accept       json
 // @Produce      json
 // @Success      200   {object}  notes.Note
-// @Router       /notes/{user} [post]
+// @Router       /notes [post]
 func PostNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var note notes.Note
-		err := c.ShouldBindJSON(&note)
-		author := c.Param("user")
+		author, err := auth.ExtractTokenUsername(c)
+		if err != nil {
+			println(err.Error())
+			c.JSON(http.StatusUnauthorized, gin.H{"errror": "Token shenanigans"})
+			return
+		}
+		err = c.ShouldBindJSON(&note)
 		if *note.Author != author {
-			c.String(http.StatusForbidden, "You can't upload notes that are not yours")
+			c.JSON(
+				http.StatusForbidden,
+				gin.H{"error": "You can't upload notes that are not yours"},
+			)
 			return
 		}
 		if err != nil {
-			c.String(http.StatusBadRequest, "Invalid payload")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 			return
 		}
 		err = dbc.Add(&note)
 		if err != nil {
-			c.String(http.StatusBadRequest, "Couldnt add a record")
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Couldnt add a record"})
 			return
 		} else {
 			c.JSON(http.StatusOK, gin.H{"status": "success"})
@@ -125,37 +145,41 @@ func PostNote(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Summary      Patch a note
 // @Description  Updates a note in the db
 // @Tags         notes
-// @Param        user path string true "current user"
 // @Param        id path int true "note id"
+// @Param        Authorization header string true "Bearer"
 // @Param        note body notes.Note true "Note JSON"
 // @Accept       json
 // @Produce      json
 // @Success      200   {object}  notes.Note
-// @Router       /notes/{user}/{id} [patch]
+// @Router       /notes/{id} [patch]
 func PatchNote(dbc *storage.DBConnected) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		author := c.Param("user")
+		author, err := auth.ExtractTokenUsername(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"errror": "Token shenanigans"})
+			return
+		}
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			c.String(http.StatusBadRequest, "Invalid ID")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 			return
 		}
 		var note notes.Note
 		err = c.ShouldBindJSON(&note)
 		if err != nil {
-			c.String(http.StatusBadRequest, "Invalid payload")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 			return
 		}
 		if *note.Author != author {
-			c.String(http.StatusForbidden, "Cannot access note that is not yours")
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot access note that is not yours"})
 			return
 		}
 		err = dbc.Update(id, author, &note)
 		if err != nil {
-			c.String(http.StatusBadRequest, "Invalid data")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
 			return
 		}
-		c.String(http.StatusOK, "Updated successfully")
+		c.JSON(http.StatusOK, "Updated successfully")
 	}
 	return gin.HandlerFunc(fn)
 }
