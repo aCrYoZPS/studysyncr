@@ -105,7 +105,7 @@ func DeleteNote(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Description  Upload a new note
 // @Tags         notes
 // @Param        note body notes.Note true "Note JSON"
-// @Param        Authorization header string true "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyMSJ9.f3FtHCssZ2xJN74rmYeautqiMDrejzBbnspf222cfbo"
+// @Param        Authorization header string true "Bearer"
 // @Accept       json
 // @Produce      json
 // @Success      200   {object}  notes.Note
