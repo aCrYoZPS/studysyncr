@@ -60,7 +60,7 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/notes.Note'
-      - description: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyMSJ9.f3FtHCssZ2xJN74rmYeautqiMDrejzBbnspf222cfbo
+      - description: 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -79,7 +79,7 @@ paths:
     get:
       description: Returns JSON array of notes
       parameters:
-      - description: Bearer
+      - description: 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -100,7 +100,7 @@ paths:
     delete:
       description: Deletes a note from db
       parameters:
-      - description: Bearer
+      - description: 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -128,7 +128,7 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Bearer
+      - description: 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -153,7 +153,7 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Bearer
+      - description: 'Bearer '
         in: header
         name: Authorization
         required: true

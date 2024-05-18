@@ -78,7 +78,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyMSJ9.f3FtHCssZ2xJN74rmYeautqiMDrejzBbnspf222cfbo",
+                        "description": "Bearer ",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -107,7 +107,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer",
+                        "description": "Bearer ",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -146,7 +146,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Bearer",
+                        "description": "Bearer ",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -173,7 +173,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer",
+                        "description": "Bearer ",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -217,7 +217,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Bearer",
+                        "description": "Bearer ",
                         "name": "Authorization",
                         "in": "header",
                         "required": true

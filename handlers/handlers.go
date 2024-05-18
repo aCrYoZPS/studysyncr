@@ -16,7 +16,7 @@ import (
 // @Description  Returns JSON of note
 // @Tags         notes
 // @Param        id path int true "note id"
-// @Param        Authorization header string true "Bearer"
+// @Param        Authorization header string true "Bearer "
 // @Produce      json
 // @Success      200   {object}  notes.Note
 // @Router       /notes/{id} [get]
@@ -47,7 +47,7 @@ func GetNote(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Summary      Get all notes of user
 // @Description  Returns JSON array of notes
 // @Tags         notes
-// @Param        Authorization header string true "Bearer"
+// @Param        Authorization header string true "Bearer "
 // @Produce      json
 // @Success      200   {object}  []notes.Note
 // @Router       /notes/ [get]
@@ -75,7 +75,7 @@ func GetAllNotes(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Summary      Delete a note
 // @Description  Deletes a note from db
 // @Tags         notes
-// @Param        Authorization header string true "Bearer"
+// @Param        Authorization header string true "Bearer "
 // @Param        id path int true "note id"
 // @Produce      json
 // @Success      200   {object}  notes.Note
@@ -97,6 +97,7 @@ func DeleteNote(dbc *storage.DBConnected) gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, gin.H{"error": "ID not found"})
 			return
 		}
+		c.JSON(http.StatusOK, gin.H{"status": "success"})
 	}
 	return gin.HandlerFunc(fn)
 }
@@ -105,7 +106,7 @@ func DeleteNote(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Description  Upload a new note
 // @Tags         notes
 // @Param        note body notes.Note true "Note JSON"
-// @Param        Authorization header string true "Bearer"
+// @Param        Authorization header string true "Bearer "
 // @Accept       json
 // @Produce      json
 // @Success      200   {object}  notes.Note
@@ -146,7 +147,7 @@ func PostNote(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Description  Updates a note in the db
 // @Tags         notes
 // @Param        id path int true "note id"
-// @Param        Authorization header string true "Bearer"
+// @Param        Authorization header string true "Bearer "
 // @Param        note body notes.Note true "Note JSON"
 // @Accept       json
 // @Produce      json
@@ -178,8 +179,9 @@ func PatchNote(dbc *storage.DBConnected) gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
 			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"status": "success"})
 		}
-		c.JSON(http.StatusOK, "Updated successfully")
 	}
 	return gin.HandlerFunc(fn)
 }

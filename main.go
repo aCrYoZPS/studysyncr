@@ -74,5 +74,5 @@ func main() {
 	router.POST("notes/", handlers.PostNote(db))
 	router.DELETE("notes/:id", handlers.DeleteNote(db))
 	router.PATCH("notes/:id", handlers.PatchNote(db))
-	router.Run("localhost:8080")
+	router.Run("127.0.0.1:8080")
 }
