@@ -101,7 +101,7 @@ func AuthMiddleware(secretKey []byte) gin.HandlerFunc {
 		}
 
 		authParts := strings.Split(authHeader, " ")
-		if len(authParts) != 2 || strings.ToLower(authParts[1]) != "bearer" {
+		if len(authParts) != 2 || strings.ToLower(authParts[0]) != "bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorisation header"})
 			c.Abort()
 			return
