@@ -43,6 +43,12 @@ func (dbc *DBConnected) Add(note *notes.Note) error {
 }
 
 func (dbc *DBConnected) AddUser(user *users.User) error {
+	var testUser users.User
+	res := dbc.DB.Where("username = ?", user.Username).
+		First(&testUser)
+	if err := res.Error; err == nil {
+		return fmt.Errorf("Username taken")
+	}
 	result := dbc.DB.Select("username", "password").Create(user)
 	if err := result.Error; err != nil {
 		return err

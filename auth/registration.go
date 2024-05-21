@@ -30,6 +30,14 @@ func Register(dbc *storage.DBConnected) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 			return
 		}
+		if user.Password == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Empty password"})
+			return
+		}
+		if user.Username == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Empty usename"})
+			return
+		}
 		hashedPassword, err := bcrypt.GenerateFromPassword(
 			[]byte(user.Password),
 			bcrypt.DefaultCost,
@@ -53,7 +61,6 @@ func Register(dbc *storage.DBConnected) gin.HandlerFunc {
 // @Description  Authorise a user
 // @Tags         authorisation
 // @Param        note body users.User true "user JSON"
-// @Param Authorization header string true "Bearer"
 // @Accept       json
 // @Produce      json
 // @Success      200
