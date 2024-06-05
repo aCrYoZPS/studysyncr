@@ -49,7 +49,7 @@ func Register(dbc *storage.DBConnected) gin.HandlerFunc {
 		user.Password = string(hashedPassword)
 		err = dbc.AddUser(&user)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Couldn't add a user"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Couldn't add a user"})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"message": "Successful registration"})
