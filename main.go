@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"auth"
@@ -29,6 +28,7 @@ var (
 // @version         1.0
 // @description     API for Studysyncr practice project
 func main() {
+	// gin.SetMode(gin.ReleaseMode)
 	err := godotenv.Load(".env")
 	if err != nil {
 		panic("file error")
@@ -58,14 +58,8 @@ func main() {
 		PORT,
 		SSL_MODE,
 	)
-	fmt.Println(conStr)
-	fmt.Println(usersConStr)
-	fmt.Print(os.Getenv("AUTH_KEY"))
 	db.Init(conStr)
 	userDB.Init(usersConStr)
-	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "")
-	})
 	router.POST("/register", auth.Register(userDB))
 	router.POST("/authorise", auth.Authorise(userDB))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -74,5 +68,5 @@ func main() {
 	router.POST("notes/", handlers.PostNote(db))
 	router.DELETE("notes/:id", handlers.DeleteNote(db))
 	router.PATCH("notes/:id", handlers.PatchNote(db))
-	router.Run("127.0.0.1:8080")
+	router.Run("localhost:8080")
 }

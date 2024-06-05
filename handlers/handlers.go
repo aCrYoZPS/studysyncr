@@ -32,7 +32,6 @@ func GetNote(dbc *storage.DBConnected) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"errror": "Token shenanigans"})
 			return
 		}
-		//	author := c.Param("user")
 		note, err := dbc.Get(id, author)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "ID not found"})
@@ -61,10 +60,6 @@ func GetAllNotes(dbc *storage.DBConnected) gin.HandlerFunc {
 		notes, err := dbc.GetList(author)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author"})
-			return
-		}
-		if len(notes) == 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Author not found"})
 			return
 		}
 		c.JSON(http.StatusOK, notes)
